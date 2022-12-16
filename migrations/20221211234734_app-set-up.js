@@ -51,9 +51,9 @@ exports.up = function(knex) {
     })
     .createTable('shifts', (table)=> {
         table.uuid('shift_id').primary()
-        table.decimal('shift_sales', 6, 2)
-        table.decimal('shift_tips')
-        table.integer('shift_closedTables')
+        table.decimal('shift_sales', 6, 2).notNullable();
+        table.decimal('shift_tips').notNullable();
+        table.integer('shift_closedTables').notNullable();
         table
         .uuid("user_id")
         .references("user_id")
@@ -71,20 +71,26 @@ exports.up = function(knex) {
         table.uuid('table_id').primary()
         table.integer("table_number").notNullable();
         table.integer('table_seats').notNullable();
-        table.decimal('table_total', 6, 2)
-        table.decimal('table_tips', 6, 2)
+        table.decimal('table_total', 6, 2).notNullable();
+        table.decimal('table_tips', 6, 2).notNullable();
         table
         .uuid("shift_id")
         .references("shift_id")
         .inTable("shifts")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+        table
+        .uuid("restaurant_id")
+        .references("restaurant_id")
+        .inTable("restaurants")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
     })
     .createTable('order', (table)=> {
         table.uuid('orderItem_id').primary()
-        table.string('orderItem_name')
-        table.decimal('orderItem_price', 6, 2)
-        table.integer('orderitem_seat')
+        table.string('orderItem_name').notNullable();
+        table.decimal('orderItem_price', 6, 2).notNullable();
+        table.integer('orderItem_seat').notNullable();
         table
         .uuid("table_id")
         .references("table_id")

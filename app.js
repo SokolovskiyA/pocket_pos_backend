@@ -5,10 +5,8 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 9000;
 const knex = require("knex")(require("./knexfile"));
-
 app.use(cors());
 app.use(express.json());
-
 // ROUTES
 app.get("/:id", (req, res)=> {
     ///creates object for response
@@ -62,16 +60,37 @@ app.post('/shift/tables', (req, res) => {
     }
 })
 app.get('/tables/:tableId', (req, res) => {
-    console.log(req.params.tableId)
     knex('tables')
         .where('table_id', req.params.tableId)
         .then((data)=> {
-            console.log(data)
             res.status(200).send(data)
         })
 }) 
+app.get('/table/:tableId/order', (req, res) => {
+    knex('order')
+        .where('table_id', req.params.tableId)
+        .then((data)=> {
+            res.status(200).send(data)
+        })
+})
 app.post('/table/:tableId/order', (req, res) => {
     console.log(req.body)
+    knex("order")
+        .insert({orderItem_id: uuid(), ...req.body})
+        .then(() => {
+            res.status(200).send("order posted succesfully")
+        });
+})
+app.delete('/order/:orderId', (req,res)=>{
+    knex('order')
+        .where("orderItem_id", req.params.orderId)
+        .del()
+        .then((data) => {
+            res.status(200).send(`Order deleted`);
+        })
+        .catch((error) => {
+            res.status(500).send(`Order cannot be deleted`);
+        });
 })
 app.get('/items/:category_id', (req,res)=> {
     knex('items')
@@ -113,8 +132,6 @@ app.delete('/:id/shift/:shiftId', (req,res)=> {
             res.status(500).send(`Can not delete Shift ${req.params.id}`);
         });
 })
-
-
 ///start the server
 app.listen(PORT, () => {
     console.log(`Server is up and running on http://localhost:${PORT}`);
